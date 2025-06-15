@@ -138,6 +138,6 @@ asgiref
 Pull requests are welcome. For major changes, please open an issue first to discuss what you'd like to change or improve.
 
 📫 Contact
-Name: Raj Khatri
-Email: rajkhatri8060@gmail.com
-GitHub: @khatri-raj
+Name: Harish K G
+Email: harishindian123@gmail.com
+GitHub: @kghthor
