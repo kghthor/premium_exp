@@ -1,0 +1,393 @@
+{% extends 'base.html' %}
+
+{% block title %} QuantumSpend💸|Money💹{% endblock %}
+
+{% block content %}
+<style>
+  :root {
+    --primary: #6c5ce7;
+    --primary-dark: #5649c0;
+    --secondary: #00cec9;
+    --dark: #2d3436;
+    --light: #f5f6fa;
+    --accent: #fd79a8;
+    --success: #00b894;
+  }
+  
+  body {
+    background: linear-gradient(135deg, rgba(108, 92, 231, 0.1), rgba(0, 206, 201, 0.1));
+    font-family: 'Space Grotesk', sans-serif;
+    position: relative;
+    min-height: 100vh;
+  }
+  
+  .dashboard-content.container {
+    background: rgba(255, 255, 255, 0.98);
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .card {
+    border: none;
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+  }
+  
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-header {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+    border-bottom: none;
+  }
+  
+  .btn {
+    border-radius: 12px;
+    padding: 12px 28px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    transition: all 0.3s ease;
+    border: none;
+  }
+  
+  .btn-success {
+    background: linear-gradient(135deg, var(--success), #00a884);
+  }
+  
+  .btn-danger {
+    background: linear-gradient(135deg, #ff4757, #e84118);
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  }
+  
+  .btn-warning {
+    background: linear-gradient(135deg, #ffbe0b, #fb5607);
+    color: white;
+  }
+  
+  .btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+  }
+  
+  .table {
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+  }
+  
+  .table thead {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+  }
+  
+  .pagination .page-link {
+    border-radius: 12px;
+    margin: 0 5px;
+    border: none;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  
+  .pagination .page-item.active .page-link {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+    color: white;
+  }
+  
+  .alert {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+  }
+  
+  .form-control, .form-select {
+    border-radius: 12px;
+    padding: 12px 16px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+  }
+  
+  .form-control:focus, .form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.2);
+  }
+  
+  .rounded-pill {
+    border-radius: 50px !important;
+  }
+  
+  h2, h3 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+  
+  .text-primary {
+    color: var(--primary) !important;
+  }
+  
+  .income-card {
+    background: linear-gradient(135deg, var(--success), #00a884);
+  }
+  
+  .expense-card {
+    background: linear-gradient(135deg, #ff4757, #e84118);
+  }
+  
+  .balance-card {
+    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  }
+</style>
+
+{% if messages %}
+  <div class="container mt-4">
+    {% for message in messages %}
+      <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+        <div class="d-flex align-items-center">
+          <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %} me-2"></i>
+          <div>{{ message }}</div>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<script>
+  window.setTimeout(function() {
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+      const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
+      bsAlert.close();
+    });
+  }, 3000);
+</script>
+
+<div class="dashboard-content container py-4">
+  <h2 class="mb-4 brand-gradient">Welcome, {{ user.username }}!</h2>
+
+  <div class="row mb-5 g-4">
+    <div class="col-md-4">
+      <div class="card text-white income-card shadow-lg">
+        <div class="card-header fw-bold">
+          <i class="fas fa-money-bill-wave me-2"></i>Total Income
+        </div>
+        <div class="card-body">
+          <h4 class="card-title">₹{{ total_income }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white expense-card shadow-lg">
+        <div class="card-header fw-bold">
+          <i class="fas fa-receipt me-2"></i>Total Expenses
+        </div>
+        <div class="card-body">
+          <h4 class="card-title">₹{{ total_expense }}</h4>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="card text-white balance-card shadow-lg">
+        <div class="card-header fw-bold">
+          <i class="fas fa-wallet me-2"></i>Balance
+        </div>
+        <div class="card-body">
+          <h4 class="card-title">₹{{ balance }}</h4>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex gap-3 mb-5">
+    <a href="{% url 'add_income' %}" class="btn btn-success">
+      <i class="fas fa-plus-circle me-2"></i>Add Income
+    </a>
+    <a href="{% url 'add_expense' %}" class="btn btn-danger">
+      <i class="fas fa-minus-circle me-2"></i>Add Expense
+    </a>
+  </div>
+
+  <hr class="my-5 border-2 opacity-50" style="border-color: var(--primary);">
+
+  <h3 class="mb-4 fw-bold brand-gradient">Your Transactions</h3>
+  <form method="get" class="row g-4 mb-5">
+    <div class="col-md-3">
+      <label for="start_date" class="form-label fw-bold">
+        <i class="fas fa-calendar-day me-2"></i>Start Date
+      </label>
+      <input type="date" id="start_date" name="start_date" class="form-control" value="{{ filter_values.start_date }}">
+    </div>
+    <div class="col-md-3">
+      <label for="end_date" class="form-label fw-bold">
+        <i class="fas fa-calendar-day me-2"></i>End Date
+      </label>
+      <input type="date" id="end_date" name="end_date" class="form-control" value="{{ filter_values.end_date }}">
+    </div>
+    <div class="col-md-3">
+      <label for="category" class="form-label fw-bold">
+        <i class="fas fa-tag me-2"></i>Category
+      </label>
+      <select id="category" name="category" class="form-select">
+        <option value="">All</option>
+        {% for category in categories %}
+          <option value="{{ category.id }}" {% if filter_values.category_id == category.id|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label for="type" class="form-label fw-bold">
+        <i class="fas fa-exchange-alt me-2"></i>Type
+      </label>
+      <select id="type" name="type" class="form-select">
+        <option value="">All</option>
+        <option value="Income" {% if filter_values.txn_type == 'Income' %}selected{% endif %}>Income</option>
+        <option value="Expense" {% if filter_values.txn_type == 'Expense' %}selected{% endif %}>Expense</option>
+      </select>
+    </div>
+    <div class="col-12 text-end mt-3">
+      <button type="submit" class="btn btn-primary">
+        <i class="fas fa-filter me-2"></i>Filter
+      </button>
+      <a href="{% url 'dashboard' %}" class="btn btn-secondary">
+        <i class="fas fa-broom me-2"></i>Clear
+      </a>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th><i class="fas fa-calendar me-2"></i>Date</th>
+          <th><i class="fas fa-exchange-alt me-2"></i>Type</th>
+          <th><i class="fas fa-tag me-2"></i>Category</th>
+          <th><i class="fas fa-align-left me-2"></i>Description</th>
+          <th><i class="fas fa-rupee-sign me-2"></i>Amount</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for txn in page_obj %}
+        <tr>
+          <td>{{ txn.date }}</td>
+          <td>
+            <span class="badge {% if txn.type == 'Income' %}bg-success{% else %}bg-danger{% endif %} rounded-pill">
+              {{ txn.type }}
+            </span>
+          </td>
+          <td>{{ txn.category.name }}</td>
+          <td>{{ txn.description }}</td>
+          <td>₹{{ txn.amount }}</td>
+          <td>
+            <div class="d-flex gap-2">
+              <a href="{% url 'edit_transaction' txn.id %}" class="btn btn-sm btn-warning">
+                <i class="fas fa-edit"></i>
+              </a>
+              <a href="{% url 'delete_transaction' txn.id %}" class="btn btn-sm btn-danger">
+                <i class="fas fa-trash"></i>
+              </a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" class="text-center py-4">
+            <i class="fas fa-inbox fa-2x mb-3" style="color: var(--primary);"></i>
+            <h5>No transactions found</h5>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+  <nav aria-label="Page navigation" class="mt-4">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if filter_values.start_date %}start_date={{ filter_values.start_date }}&{% endif %}{% if filter_values.end_date %}end_date={{ filter_values.end_date }}&{% endif %}{% if filter_values.category_id %}category={{ filter_values.category_id }}&{% endif %}{% if filter_values.txn_type %}type={{ filter_values.txn_type }}&{% endif %}page={{ page_obj.previous_page_number }}" aria-label="Previous">
+          <i class="fas fa-chevron-left"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="fas fa-chevron-left"></i></span>
+      </li>
+      {% endif %}
+
+      {% for num in page_obj.paginator.page_range %}
+        {% if page_obj.number == num %}
+          <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li class="page-item">
+            <a class="page-link" href="?{% if filter_values.start_date %}start_date={{ filter_values.start_date }}&{% endif %}{% if filter_values.end_date %}end_date={{ filter_values.end_date }}&{% endif %}{% if filter_values.category_id %}category={{ filter_values.category_id }}&{% endif %}{% if filter_values.txn_type %}type={{ filter_values.txn_type }}&{% endif %}page={{ num }}">{{ num }}</a>
+          </li>
+        {% endif %}
+      {% endfor %}
+
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?{% if filter_values.start_date %}start_date={{ filter_values.start_date }}&{% endif %}{% if filter_values.end_date %}end_date={{ filter_values.end_date }}&{% endif %}{% if filter_values.category_id %}category={{ filter_values.category_id }}&{% endif %}{% if filter_values.txn_type %}type={{ filter_values.txn_type }}&{% endif %}page={{ page_obj.next_page_number }}" aria-label="Next">
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link"><i class="fas fa-chevron-right"></i></span>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+  {% endif %}
+</div>
+
+<script>
+  // Add animation to cards on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    const cards = document.querySelectorAll('.card');
+    cards.forEach((card, index) => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(20px)';
+      card.style.animation = `fadeInUp 0.5s ease forwards ${index * 0.1 + 0.3}s`;
+    });
+  });
+</script>
+
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .brand-gradient {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+</style>
+{% endblock %}
+```
