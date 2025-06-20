@@ -6,7 +6,7 @@ Managing personal finances can be challenging. To simplify this, I built the **P
 
 ## 🌐 Live Demo
 
-🔗 [View Live Application](https://your-live-demo-link.com)  
+🔗 [View Live Application](https://your-live-demo-link.com)   
 *(Replace this link with your actual deployed app URL)*
 
 ---
